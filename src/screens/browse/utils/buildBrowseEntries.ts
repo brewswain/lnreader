@@ -1,3 +1,4 @@
+import { getPluginHealth, PluginIssueIndex } from '@plugins/pluginHealth';
 import { PluginItem } from '@plugins/types';
 import { getString } from '@i18n/translations';
 import { getLocaleLanguageName } from '@utils/constants/languages';
@@ -189,21 +190,27 @@ export type PluginEntry =
 interface BuildPluginEntriesOptions {
   availablePlugins: readonly PluginItem[];
   installedPlugins: readonly PluginItem[];
+  issueIndex?: PluginIssueIndex;
   searchText: string;
 }
 
 export const buildPluginEntries = ({
   availablePlugins,
   installedPlugins,
+  issueIndex,
   searchText,
 }: BuildPluginEntriesOptions): PluginEntry[] => {
   const normalizedSearch = searchText.trim().toLocaleLowerCase();
+  const isBroken = (plugin: PluginItem) =>
+    getPluginHealth(issueIndex, plugin.id)?.status === 'broken' ? 1 : 0;
   const installed = [...installedPlugins].sort((first, second) =>
     first.name.localeCompare(second.name),
   );
+  // Reported-broken sources sink to the end of their language group.
   const available = [...availablePlugins].sort(
     (first, second) =>
       first.lang.localeCompare(second.lang) ||
+      isBroken(first) - isBroken(second) ||
       first.name.localeCompare(second.name),
   );
 

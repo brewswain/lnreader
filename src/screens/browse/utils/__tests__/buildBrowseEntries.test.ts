@@ -96,6 +96,21 @@ describe('buildPluginEntries', () => {
     ]);
   });
 
+  it('sorts reported-broken plugins to the end of their language group', () => {
+    const entries = buildPluginEntries({
+      availablePlugins: [plugin('alpha', 'Alpha'), plugin('beta', 'Beta')],
+      installedPlugins: [],
+      issueIndex: { alpha: [[5, 1]], beta: [[1, 2]] },
+      searchText: '',
+    });
+
+    expect(entries.map(entry => entry.key)).toEqual([
+      'available-language-English',
+      'available-beta',
+      'available-alpha',
+    ]);
+  });
+
   it('returns no entries when a search has no matches', () => {
     expect(
       buildPluginEntries({

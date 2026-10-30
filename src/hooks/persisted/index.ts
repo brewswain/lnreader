@@ -17,6 +17,7 @@ export {
   useLastUsedPluginId,
   useLanguagesFilter,
   usePinnedPlugins,
+  usePluginIssueIndex,
   usePluginActions,
 } from './usePlugins';
 export type { PluginActions } from './usePlugins';

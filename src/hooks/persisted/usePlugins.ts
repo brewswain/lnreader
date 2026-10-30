@@ -9,6 +9,7 @@ import {
   updatePlugin as updatePluginSource,
   INSTALLED_PLUGINS_KEY,
 } from '@plugins/pluginManager';
+import { fetchPluginIssueIndex, PluginIssueIndex } from '@plugins/pluginHealth';
 import { PluginItem } from '@plugins/types';
 import { getString } from '@i18n/translations';
 import { languagesMapping } from '@utils/constants/languages';
@@ -25,6 +26,7 @@ export const INSTALLED_PLUGINS = INSTALLED_PLUGINS_KEY;
 export const LANGUAGES_FILTER = 'LANGUAGES_FILTER';
 export const LAST_USED_PLUGIN = 'LAST_USED_PLUGIN';
 export const PINNED_PLUGINS = 'PINNED_PLUGINS';
+export const PLUGIN_ISSUE_INDEX = 'PLUGIN_ISSUE_INDEX';
 
 const legacyFilteredPluginKeys = [
   'FILTERED_AVAILABLE_PLUGINS',
@@ -69,6 +71,12 @@ export const usePinnedPlugins = () => {
     useMMKVObject<string[]>(PINNED_PLUGINS);
 
   return pinnedPlugins;
+};
+
+export const usePluginIssueIndex = () => {
+  const [issueIndex] = useMMKVObject<PluginIssueIndex>(PLUGIN_ISSUE_INDEX);
+
+  return issueIndex;
 };
 
 export const useLastUsedPluginId = () => {
@@ -127,6 +135,10 @@ export const usePluginActions = () => {
       if (lastUsedPluginId && typeof storedLastUsedPlugin !== 'string') {
         setMMKVObject(LAST_USED_PLUGIN, lastUsedPluginId);
       }
+      // Health badges are best effort; a failed fetch keeps the last index.
+      fetchPluginIssueIndex()
+        .then(index => setMMKVObject(PLUGIN_ISSUE_INDEX, index))
+        .catch(() => {});
       const fetchedPlugins = await fetchPlugins();
       const updatedInstalledPlugins = reconcileInstalledPluginUpdates(
         installedPlugins,
