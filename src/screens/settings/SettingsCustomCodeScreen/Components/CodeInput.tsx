@@ -75,7 +75,7 @@ const CodeInput = ({
 
   const lines = useStableLineModels(code);
   const startLines = useStableLineModels(startValue);
-  const debounce = React.useRef<NodeJS.Timeout | null>(null);
+  const debounce = React.useRef<ReturnType<typeof setTimeout> | null>(null);
   const [error, setError] = React.useState<string | undefined>(undefined);
 
   function setAndAnalyzeCode(val: string) {
