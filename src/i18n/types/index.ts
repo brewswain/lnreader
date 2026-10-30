@@ -475,6 +475,9 @@ export interface StringMap {
   'moreScreen.incognitoMode': 'string';
   'moreScreen.incognitoModeDesc': 'string';
   'novelScreen.addToLibaray': 'string';
+  'novelScreen.searchForAuthor': 'string';
+  'novelScreen.copyAuthor': 'string';
+  'novelScreen.searchAuthor': 'string';
   'novelScreen.bottomSheet.displays.chapterNumber': 'string';
   'novelScreen.bottomSheet.displays.sourceTitle': 'string';
   'novelScreen.bottomSheet.filters.bookmarked': 'string';

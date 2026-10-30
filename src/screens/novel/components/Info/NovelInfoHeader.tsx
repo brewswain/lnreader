@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useMemo } from 'react';
+import React, { memo, useCallback, useMemo, useState } from 'react';
 import { View, Text, StyleSheet, Pressable } from 'react-native';
 
 import * as Clipboard from 'expo-clipboard';
@@ -17,6 +17,7 @@ import {
   NovelGenres,
 } from './NovelInfoComponents';
 import { Row } from '@components/Common';
+import Menu from '@components/Menu';
 import ReadButton from './ReadButton';
 import NovelSummary from '../NovelSummary/NovelSummary';
 import NovelScreenButtonGroup from '../NovelScreenButtonGroup/NovelScreenButtonGroup';
@@ -140,6 +141,28 @@ const NovelInfoHeader = ({
     );
   }, [novel.name]);
 
+  const author = novel.id !== 'NO_ID' ? novel.author : undefined;
+
+  const [authorMenuVisible, setAuthorMenuVisible] = useState(false);
+  const openAuthorMenu = useCallback(() => setAuthorMenuVisible(true), []);
+  const closeAuthorMenu = useCallback(() => setAuthorMenuVisible(false), []);
+
+  const handleAuthorPress = useCallback(() => {
+    setAuthorMenuVisible(false);
+    if (author) {
+      navigation.replace('GlobalSearchScreen', { searchText: author });
+    }
+  }, [navigation, author]);
+
+  const handleAuthorCopy = useCallback(() => {
+    setAuthorMenuVisible(false);
+    if (author) {
+      Clipboard.setStringAsync(author).then(() =>
+        showToast(getString('common.copiedToClipboard', { name: author })),
+      );
+    }
+  }, [author]);
+
   const handleFollowNovel = useCallback(async () => {
     if (isLoading) {
       showNotAvailable();
@@ -211,7 +234,7 @@ const NovelInfoHeader = ({
               <NovelDetailsSkeleton theme={theme} />
             ) : (
               <>
-                {novel.id !== 'NO_ID' && novel.author ? (
+                {author ? (
                   <Row style={styles.infoRow}>
                     <MaterialCommunityIcons
                       name="fountain-pen-tip"
@@ -219,7 +242,35 @@ const NovelInfoHeader = ({
                       color={theme.onSurfaceVariant}
                       style={styles.marginRight}
                     />
-                    <NovelInfo theme={theme}>{novel.author}</NovelInfo>
+                    {/* Bounds the menu anchor so long author names still truncate */}
+                    <View style={styles.flexShrink}>
+                      <Menu
+                        visible={authorMenuVisible}
+                        onDismiss={closeAuthorMenu}
+                        anchor={
+                          <NovelInfo
+                            theme={theme}
+                            accessibilityLabel={getString(
+                              'novelScreen.searchForAuthor',
+                              { author },
+                            )}
+                            onPress={handleAuthorPress}
+                            onLongPress={openAuthorMenu}
+                          >
+                            {author}
+                          </NovelInfo>
+                        }
+                      >
+                        <Menu.Item
+                          title={getString('novelScreen.copyAuthor')}
+                          onPress={handleAuthorCopy}
+                        />
+                        <Menu.Item
+                          title={getString('novelScreen.searchAuthor')}
+                          onPress={handleAuthorPress}
+                        />
+                      </Menu>
+                    </View>
                   </Row>
                 ) : null}
                 {novel.id !== 'NO_ID' && novel.artist ? (
@@ -339,6 +390,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
   },
   flex: { flex: 1 },
+  flexShrink: { flexShrink: 1 },
   marginRight: { marginRight: 4 },
   novelDetails: {
     flex: 1,

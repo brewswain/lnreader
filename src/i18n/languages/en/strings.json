@@ -552,6 +552,9 @@
   },
   "novelScreen": {
     "addToLibaray": "Add to library",
+    "searchForAuthor": "Search for author %{author}",
+    "copyAuthor": "Copy",
+    "searchAuthor": "Search for author",
     "bottomSheet": {
       "displays": {
         "chapterNumber": "Chapter number",

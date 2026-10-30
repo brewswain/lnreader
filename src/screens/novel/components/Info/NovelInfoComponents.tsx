@@ -180,11 +180,21 @@ const NovelTitle = ({
 const NovelInfo = ({
   theme,
   children,
+  accessibilityLabel,
+  onLongPress,
+  onPress,
 }: {
   theme: ThemeColors;
   children: React.ReactNode;
+  accessibilityLabel?: string;
+  onLongPress?: () => void;
+  onPress?: () => void;
 }) => (
   <Text
+    accessibilityLabel={accessibilityLabel}
+    accessibilityRole={onPress ? 'button' : undefined}
+    onLongPress={onLongPress}
+    onPress={onPress}
     style={[{ color: theme.onSurfaceVariant }, styles.novelInfo]}
     numberOfLines={1}
   >
