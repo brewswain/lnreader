@@ -109,6 +109,8 @@ export interface BrowseSettings {
   showMyAnimeList: boolean;
   showAniList: boolean;
   globalSearchConcurrency?: number;
+  globalSearchPinnedOnly?: boolean;
+  globalSearchEnglishOnly?: boolean;
 }
 
 export interface LibrarySettings {

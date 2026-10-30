@@ -217,6 +217,7 @@ export interface StringMap {
   'browseScreen.pluginNotInstalled': 'string';
   'browseScreen.plugins': 'string';
   'browseScreen.removeFromLibrary': 'string';
+  'browseScreen.searchNovels': 'string';
   'browseScreen.repositories': 'string';
   'browseScreen.searchbar': 'string';
   'browseScreen.searchResults': 'string';
@@ -411,6 +412,9 @@ export interface StringMap {
   'globalSearch.openNovel': 'string';
   'globalSearch.openCopiedNovel': 'string';
   'globalSearch.noSourceForUrl': 'string';
+  'globalSearch.hasResults': 'string';
+  'globalSearch.pinnedOnly': 'string';
+  'globalSearch.englishOnly': 'string';
   'history': 'string';
   'historyScreen.chapter': 'string';
   'historyScreen.clearHistorWarning': 'string';

@@ -20,7 +20,7 @@ import {
 import GlobalSearchResultsList from './components/GlobalSearchResultsList';
 
 import { useSearch } from '@hooks';
-import { useTheme } from '@hooks/persisted';
+import { useBrowseSettings, useTheme } from '@hooks/persisted';
 
 import { getString } from '@i18n/translations';
 import { navigationRef } from '@navigators/ShareIntentHandler';
@@ -46,7 +46,12 @@ const GlobalSearchScreen = (props: Props) => {
   );
   const onChangeText = (text: string) => setSearchText(text);
 
-  const [hasResultsOnly, setHasResultsOnly] = useState(false);
+  const [hasResultsOnly, setHasResultsOnly] = useState(true);
+  const {
+    globalSearchPinnedOnly = false,
+    globalSearchEnglishOnly = false,
+    setBrowseSettings,
+  } = useBrowseSettings();
   const [clipboardNovel, setClipboardNovel] = useState<
     { pluginId: string; path: string } | undefined
   >();
@@ -147,19 +152,43 @@ const GlobalSearchScreen = (props: Props) => {
           progress={Math.round(1000 * progress) / 1000}
         />
       ) : null}
-      {progress > 0 ? (
-        <View style={styles.filterContainer}>
-          <SelectableChip
-            label="Has results"
-            selected={hasResultsOnly}
-            icon="filter-variant"
-            showCheckIcon={false}
-            theme={theme}
-            onPress={() => setHasResultsOnly(!hasResultsOnly)}
-            mode="outlined"
-          />
-        </View>
-      ) : null}
+      <View style={styles.filterContainer}>
+        <SelectableChip
+          label={getString('globalSearch.hasResults')}
+          selected={hasResultsOnly}
+          icon="filter-variant"
+          showCheckIcon={false}
+          theme={theme}
+          onPress={() => setHasResultsOnly(!hasResultsOnly)}
+          mode="outlined"
+        />
+        <SelectableChip
+          label={getString('globalSearch.pinnedOnly')}
+          selected={globalSearchPinnedOnly}
+          icon="pin-outline"
+          showCheckIcon={false}
+          theme={theme}
+          onPress={() =>
+            setBrowseSettings({
+              globalSearchPinnedOnly: !globalSearchPinnedOnly,
+            })
+          }
+          mode="outlined"
+        />
+        <SelectableChip
+          label={getString('globalSearch.englishOnly')}
+          selected={globalSearchEnglishOnly}
+          icon="translate"
+          showCheckIcon={false}
+          theme={theme}
+          onPress={() =>
+            setBrowseSettings({
+              globalSearchEnglishOnly: !globalSearchEnglishOnly,
+            })
+          }
+          mode="outlined"
+        />
+      </View>
       <GlobalSearchResultsList
         searchResults={searchResults}
         ListEmptyComponent={
@@ -206,5 +235,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
     paddingTop: 16,
     flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
   },
 });

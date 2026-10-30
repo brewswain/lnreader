@@ -117,6 +117,7 @@ jest.mock('@hooks', () => {
 });
 
 jest.mock('@hooks/persisted', () => ({
+  useBrowseSettings: () => ({ setBrowseSettings: jest.fn() }),
   useTheme: () => ({}),
 }));
 

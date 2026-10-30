@@ -248,6 +248,7 @@
     "pluginNotInstalled": "This plugin is not installed",
     "plugins": "Plugins",
     "removeFromLibrary": "Removed from library",
+    "searchNovels": "Search novels in all sources",
     "repositories": "Repositories",
     "searchbar": "Search sources and plugins",
     "searchResults": "Search results",
@@ -469,7 +470,10 @@
     "searchIn": "Search a novel in",
     "openNovel": "Open novel",
     "openCopiedNovel": "Open copied novel",
-    "noSourceForUrl": "No source found for this URL"
+    "noSourceForUrl": "No source found for this URL",
+    "hasResults": "Has results",
+    "pinnedOnly": "Pinned only",
+    "englishOnly": "English only"
   },
   "history": "History",
   "historyScreen": {

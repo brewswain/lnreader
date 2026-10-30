@@ -62,6 +62,15 @@ const BrowseScreen = ({ navigation }: BrowseScreenProps) => {
 
   const [index, setIndex] = React.useState(0);
   const openPlugins = useCallback(() => setIndex(1), []);
+  // On Sources the bar searches novels across all sources; on Plugins it
+  // filters the plugin list by name.
+  const isSourcesTab = routes[index].key === 'sources';
+  const submitGlobalSearch = useCallback(() => {
+    const text = searchText.trim();
+    if (isSourcesTab && text) {
+      navigation.navigate('GlobalSearchScreen', { searchText: text });
+    }
+  }, [isSourcesTab, navigation, searchText]);
   const navigationState = useMemo(() => ({ index, routes }), [index]);
   const initialLayout = useMemo(
     () => ({ width: layout.width }),
@@ -102,7 +111,7 @@ const BrowseScreen = ({ navigation }: BrowseScreenProps) => {
               navigation={navigation}
               onOpenPlugins={openPlugins}
               theme={theme}
-              searchText={searchText}
+              searchText=""
             />
           );
       }
@@ -134,9 +143,12 @@ const BrowseScreen = ({ navigation }: BrowseScreenProps) => {
     <SafeAreaView excludeBottom>
       <SearchbarV2
         searchText={searchText}
-        placeholder={getString('browseScreen.searchbar')}
+        placeholder={getString(
+          isSourcesTab ? 'browseScreen.searchNovels' : 'browseScreen.searchbar',
+        )}
         leftIcon="magnify"
         onChangeText={setSearchText}
+        onSubmitEditing={submitGlobalSearch}
         clearSearchbar={clearSearchbar}
         theme={theme}
         rightIcons={searchbarActions}

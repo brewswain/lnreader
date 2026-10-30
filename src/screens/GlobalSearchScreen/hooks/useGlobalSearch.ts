@@ -6,6 +6,7 @@ import { getPlugin } from '@plugins/pluginManager';
 import {
   useBrowseSettings,
   useFilteredInstalledPlugins,
+  usePinnedPlugins,
 } from '@hooks/persisted';
 import { useFocusEffect } from '@react-navigation/native';
 import { resolveSharedUrl } from '@services/share/resolveSharedUrl';
@@ -43,12 +44,38 @@ export const useGlobalSearch = ({
     }, []),
   );
 
-  const filteredInstalledPlugins = useFilteredInstalledPlugins();
+  const installedPlugins = useFilteredInstalledPlugins();
+  const pinnedPlugins = usePinnedPlugins();
 
   const [searchResults, setSearchResults] = useState<GlobalSearchResult[]>([]);
   const [progress, setProgress] = useState(0);
 
-  const { globalSearchConcurrency = 1 } = useBrowseSettings();
+  const {
+    globalSearchConcurrency = 1,
+    globalSearchPinnedOnly = false,
+    globalSearchEnglishOnly = false,
+  } = useBrowseSettings();
+
+  const filteredInstalledPlugins = useMemo(
+    () =>
+      installedPlugins.filter(
+        plugin =>
+          (!globalSearchPinnedOnly || pinnedPlugins.includes(plugin.id)) &&
+          (!globalSearchEnglishOnly || plugin.lang === 'English'),
+      ),
+    [
+      installedPlugins,
+      pinnedPlugins,
+      globalSearchPinnedOnly,
+      globalSearchEnglishOnly,
+    ],
+  );
+
+  // Changing the source scope must rerun the current search, which
+  // globalSearch otherwise skips for unchanged text.
+  useEffect(() => {
+    lastSearch.current = '';
+  }, [filteredInstalledPlugins]);
 
   const globalSearch = useCallback(
     (searchText: string) => {

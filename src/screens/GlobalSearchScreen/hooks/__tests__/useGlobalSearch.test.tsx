@@ -53,8 +53,14 @@ jest.mock('@utils/mmkv/mmkv', () => ({
 
 jest.mock('@hooks/persisted', () => ({
   useFilteredInstalledPlugins: () => [testSource],
-  useBrowseSettings: () => ({ globalSearchConcurrency: 1 }),
+  useBrowseSettings: () => mockBrowseSettings,
+  usePinnedPlugins: () => mockPinnedPlugins,
 }));
+
+let mockBrowseSettings: Record<string, unknown> = {
+  globalSearchConcurrency: 1,
+};
+let mockPinnedPlugins: string[] = [];
 
 const testSource: PluginItem = {
   id: 'test-source',
@@ -71,6 +77,8 @@ const mockGetPlugin = getPlugin as jest.Mock;
 
 beforeEach(() => {
   jest.clearAllMocks();
+  mockBrowseSettings = { globalSearchConcurrency: 1 };
+  mockPinnedPlugins = [];
   mockGetMMKVObject.mockReturnValue([testSource]);
   jest.useFakeTimers();
 });
@@ -125,6 +133,24 @@ describe('useGlobalSearch', () => {
     });
 
     expect(mockGetPlugin).toHaveBeenCalled();
+  });
+
+  it.each([
+    ['pinned', { globalSearchPinnedOnly: true }, [], false],
+    ['pinned', { globalSearchPinnedOnly: true }, ['test-source'], true],
+    ['English', { globalSearchEnglishOnly: true }, [], true],
+  ])('respects the %s-only scope (case %#)', (_, scope, pinned, searched) => {
+    mockBrowseSettings = { globalSearchConcurrency: 1, ...scope };
+    mockPinnedPlugins = pinned;
+    renderHook(() =>
+      useGlobalSearch({ defaultSearchText: 'mother of learning' }),
+    );
+
+    act(() => {
+      jest.advanceTimersByTime(400);
+    });
+
+    expect(mockGetPlugin).toHaveBeenCalledTimes(searched ? 1 : 0);
   });
 
   it('does not search when the search text is empty', () => {
