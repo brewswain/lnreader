@@ -73,6 +73,42 @@ describe('fetchPlugins', () => {
     expect(fetchSpy).toHaveBeenCalledWith(repositoryUrl);
     fetchSpy.mockRestore();
   });
+
+  it('keeps the highest version of a plugin listed by several repositories', async () => {
+    const repoPlugins: Record<string, PluginItem[]> = {
+      'https://official.example.com': [
+        { id: 'shared', version: '1.2.0', url: 'official' },
+        { id: 'tied', version: '1.0.0', url: 'official' },
+      ] as PluginItem[],
+      'https://fork.example.com': [
+        { id: 'shared', version: '1.1.9', url: 'fork' },
+        { id: 'tied', version: '1.0.0', url: 'fork' },
+        { id: 'extra', version: '1.0.0', url: 'fork' },
+      ] as PluginItem[],
+    };
+    jest.mocked(getEnabledRepositoriesFromDb).mockResolvedValueOnce(
+      Object.keys(repoPlugins).map((url, index) => ({
+        id: index,
+        url,
+        enabled: true,
+      })),
+    );
+    const fetchSpy = jest
+      .spyOn(global, 'fetch')
+      .mockImplementation(
+        async url =>
+          ({ json: async () => repoPlugins[url as string] } as Response),
+      );
+
+    const plugins = await fetchPlugins();
+
+    expect(plugins.map(plugin => [plugin.id, plugin.url])).toEqual([
+      ['shared', 'official'],
+      ['tied', 'fork'],
+      ['extra', 'fork'],
+    ]);
+    fetchSpy.mockRestore();
+  });
 });
 
 describe('reloadInstalledPlugins', () => {

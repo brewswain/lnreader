@@ -3,8 +3,6 @@ import { utf8ToBytes, bytesToUtf8 } from '@noble/ciphers/utils.js';
 import dayjs from 'dayjs';
 import { load } from 'cheerio';
 import { Parser } from 'htmlparser2';
-import reverse from 'lodash-es/reverse';
-import uniqBy from 'lodash-es/uniqBy';
 import { encode, decode } from 'urlencode';
 
 import { getEnabledRepositoriesFromDb } from '@database/queries/RepositoryQueries';
@@ -191,7 +189,16 @@ const fetchPlugins = async (): Promise<PluginItem[]> => {
     }
   });
 
-  return uniqBy(reverse(allPlugins), 'id');
+  // Repos often carry stale copies of each other's plugins, so keep the highest
+  // version of each id; on a tie the later repo wins.
+  const pluginsById = new Map<string, PluginItem>();
+  allPlugins.forEach(plugin => {
+    const current = pluginsById.get(plugin.id);
+    if (!current || !newer(current.version ?? '', plugin.version ?? '')) {
+      pluginsById.set(plugin.id, plugin);
+    }
+  });
+  return [...pluginsById.values()];
 };
 
 const getPlugin = (pluginId: string) => {
